@@ -8,7 +8,7 @@
 export default {
   computed: {
     logs() {
-      return this.$store.state.logs;
+      return this.$store.state.log.logs;
     }
   }
 };

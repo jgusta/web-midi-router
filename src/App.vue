@@ -43,6 +43,10 @@ export default {
       return navigator.requestMIDIAccess().then(
         function(midi) {
           console.log("MIDI Initialized.");
+          vm.$store.commit("log", {
+            msg:
+              "MIDI Initialized."
+          });
           vm.$store.commit("midiAccess", { midi });
         },
         function(msg) {

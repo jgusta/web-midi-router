@@ -1,10 +1,10 @@
 const state = {
-  log: []
+  logs: []
 };
 
 const mutations = {
   log(state, payload) {
-    state.log.push(payload.msg);
+    state.logs.push(payload.msg);
   }
 };
 
