@@ -1,20 +1,15 @@
 <template>
   <div>
-    Input port [type:'"
-    {{input.type}}
-    "'] id:'"
-    {{ input.id }}
-    "' manufacturer:'"
-    {{ input.manufacturer }}
-    "' name:'"
-    {{ input.name }}
-    "' version:'"
-    {{ input.version }}
-    "'"
+    Input port id: {{ input.id }}<br>
+    manufacturer: {{ input.manufacturer }}<br>
+    name: {{ input.name }}
   </div>
 </template>
 <script>
 export default {
-  props: ["input", "idx"]
+  props: ["input", "idx"],
+  created: function() {
+    console.log(this.input);
+  }
 };
 </script>

@@ -17,6 +17,12 @@ const mutations = {
   },
   addMidiConnection(state, payload) {
     state.midiConnections.push(payload.midiConnection);
+  },
+  clearMidiInputs(state) {
+    state.midiInputs = [];
+  },
+  clearMidiOutputs(state) {
+    state.midiOutputs = [];
   }
 };
 

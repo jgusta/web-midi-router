@@ -1,18 +1,18 @@
 <template>
-  <div id="input-device-list">
-    <h3>MIDI inputs</h3>
+  <div id="output-device-list">
+    <h3>MIDI outputs</h3>
     <template>
-      <InputDevice
-        v-for="(input, idx) in midiInputs"
+      <OutputDevice
+        v-for="(output, idx) in midiOutputs"
         v-bind:key="idx"
-        v-bind:input="input"
-      ></InputDevice>
+        v-bind:output="output"
+      ></OutputDevice>
     </template>
   </div>
 </template>
 
 <script>
-import InputDevice from "./InputDevice.vue";
+import OutputDevice from "./OutputDevice.vue";
 import { mapGetters } from "vuex";
 export default {
   computed: {
@@ -28,7 +28,7 @@ export default {
     };
   },
   components: {
-    InputDevice
+    OutputDevice
   }
 };
 </script>

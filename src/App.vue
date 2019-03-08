@@ -2,12 +2,14 @@
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png" />
     <InputDeviceList />
+    <OutputDeviceList />
     <StatusConsole />
   </div>
 </template>
 
 <script>
 import InputDeviceList from "./components/InputDeviceList.vue";
+import OutputDeviceList from "./components/OutputDeviceList.vue";
 import StatusConsole from "./components/StatusConsole.vue";
 import MidiConnection from "./midi/MidiConnection.js";
 import MidiInput from "./midi/MidiInput.js";
@@ -17,6 +19,7 @@ export default {
   name: "app",
   components: {
     InputDeviceList,
+    OutputDeviceList,
     StatusConsole
   },
   computed: {
@@ -57,6 +60,7 @@ export default {
     enumerateMidiInputs() {
       let vm = this;
       return new Promise(function(resolve) {
+        vm.$store.commit("clearMidiInputs");
         for (var entry of vm.midiAccess.inputs) {
           var input = entry[1];
           let midiInput = new MidiInput(input);
@@ -70,6 +74,7 @@ export default {
       return new Promise(function(resolve) {
         // note that there is some weird bug using the values() method
         // with outputs that causes the browser to crash
+        vm.$store.commit("clearMidiOutputs");
         for (var entry of vm.midiAccess.outputs) {
           var output = entry[1];
           let midiOutput = new MidiOutput(output);
