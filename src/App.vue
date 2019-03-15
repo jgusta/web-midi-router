@@ -4,6 +4,8 @@
     <InputDeviceList />
     <OutputDeviceList />
     <StatusConsole />
+    <ConnectionList />
+    <vSelect />
   </div>
 </template>
 
@@ -11,6 +13,7 @@
 import InputDeviceList from "./components/InputDeviceList.vue";
 import OutputDeviceList from "./components/OutputDeviceList.vue";
 import StatusConsole from "./components/StatusConsole.vue";
+import ConnectionList from "./components/ConnectionList.vue";
 import MidiConnection from "./midi/MidiConnection.js";
 import MidiInput from "./midi/MidiInput.js";
 import MidiOutput from "./midi/MidiOutput.js";
@@ -20,7 +23,8 @@ export default {
   components: {
     InputDeviceList,
     OutputDeviceList,
-    StatusConsole
+    StatusConsole,
+    ConnectionList
   },
   computed: {
     ...mapGetters([
@@ -47,8 +51,7 @@ export default {
         function(midi) {
           console.log("MIDI Initialized.");
           vm.$store.commit("log", {
-            msg:
-              "MIDI Initialized."
+            msg: "MIDI Initialized."
           });
           vm.$store.commit("midiAccess", { midi });
         },
@@ -96,10 +99,7 @@ export default {
       .then(this.enumerateMidiInputs)
       .then(this.enumerateMidiOutputs)
       .then(function() {
-        vm.connectDevices(
-          vm.midiInputs[1],
-          vm.midiOutputs[0]
-        );
+        vm.connectDevices(vm.midiInputs[1], vm.midiOutputs[0]);
       });
   }
 };

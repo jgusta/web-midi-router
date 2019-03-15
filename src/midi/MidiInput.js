@@ -13,17 +13,17 @@ class MidiInput {
   spitInput() {
     return this.sysMidiInput;
   }
-/*
-connection: "closed"
-id: "input-0"
-manufacturer: "Microsoft Corporation"
-name: "Komplete Audio 6 MIDI"
-onmidimessage: null
-onstatechange: null
-state: "connected"
-type: "input"
-version: "10.0"
-*/
+  /*
+  connection: "closed"
+  id: "input-0"
+  manufacturer: "Microsoft Corporation"
+  name: "Komplete Audio 6 MIDI"
+  onmidimessage: null
+  onstatechange: null
+  state: "connected"
+  type: "input"
+  version: "10.0"
+  */
   get id() {
     return this.sysMidiInput.id;
   }
