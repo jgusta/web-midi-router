@@ -12,28 +12,23 @@
 
 <script>
 import Connection from "./Connection.vue";
-import { mapGetters } from "vuex";
 export default {
-  computed: {
-    ...mapGetters([
-      "midiAccess",
-      "midiInputs",
-      "midiOutputs",
-      "midiConnections"
-    ])
-  },
   data() {
     return {
       connectionBoxes: []
     };
   },
   methods: {
+    // add a blank connection with blank selected
     addBlankConnection: function() {
+      //Build the COnnection item, destoy th blank connection
       this.connectionBoxes.push({
         input: "",
         output: ""
       });
-    }
+    },
+    // tkae two connectionBoxes and return solid connection
+    attachConnection: function() {}
   },
   components: {
     Connection

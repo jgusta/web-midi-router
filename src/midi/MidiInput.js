@@ -1,6 +1,10 @@
 class MidiInput {
   constructor(sysMidiInput) {
     this.sysMidiInput = sysMidiInput;
+    this.label = this.sysMidiInput.name;
+    this.value = this.sysMidiInput.id;
+    this.manufacturer = this.sysMidiInput.manufacturer;
+    this.name = this.sysMidiInput.name;
   }
   inputHandler(event) {
     console.log(event);
@@ -14,24 +18,15 @@ class MidiInput {
     return this.sysMidiInput;
   }
   /*
-  connection: "closed"
-  id: "input-0"
-  manufacturer: "Microsoft Corporation"
-  name: "Komplete Audio 6 MIDI"
-  onmidimessage: null
-  onstatechange: null
-  state: "connected"
-  type: "input"
-  version: "10.0"
-  */
-  get id() {
-    return this.sysMidiInput.id;
-  }
-  get name() {
-    return this.sysMidiInput.name;
-  }
-  get manufacturer() {
-    return this.sysMidiInput.manufacturer;
-  }
+    connection: "closed"
+    id: "input-0"
+    manufacturer: "Microsoft Corporation"
+    name: "Komplete Audio 6 MIDI"
+    onmidimessage: null
+    onstatechange: null
+    state: "connected"
+    type: "input"
+    version: "10.0"
+    */
 }
 export default MidiInput;

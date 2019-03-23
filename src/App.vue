@@ -1,17 +1,12 @@
 <template>
   <div id="app">
     <img alt="Vue logo" src="./assets/logo.png" />
-    <InputDeviceList />
-    <OutputDeviceList />
     <StatusConsole />
     <ConnectionList />
-    <vSelect />
   </div>
 </template>
 
 <script>
-import InputDeviceList from "./components/InputDeviceList.vue";
-import OutputDeviceList from "./components/OutputDeviceList.vue";
 import StatusConsole from "./components/StatusConsole.vue";
 import ConnectionList from "./components/ConnectionList.vue";
 import MidiConnection from "./midi/MidiConnection.js";
@@ -21,8 +16,6 @@ import { mapGetters } from "vuex";
 export default {
   name: "app",
   components: {
-    InputDeviceList,
-    OutputDeviceList,
     StatusConsole,
     ConnectionList
   },
@@ -94,12 +87,12 @@ export default {
     }
   },
   created() {
-    let vm = this;
+    // let vm = this;
     this.requestAccess()
       .then(this.enumerateMidiInputs)
       .then(this.enumerateMidiOutputs)
       .then(function() {
-        vm.connectDevices(vm.midiInputs[1], vm.midiOutputs[0]);
+        // vm.connectDevices(vm.midiInputs[1], vm.midiOutputs[0]);
       });
   }
 };

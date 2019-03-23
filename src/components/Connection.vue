@@ -1,9 +1,9 @@
 <template>
   <div>
     <h5>Input</h5>
-    <vSelect></vSelect>
+    <vSelect :options="midiInputs"></vSelect>
     <h5>Output</h5>
-    <vSelect></vSelect>
+    <vSelect :options="midiOutputs"></vSelect>
   </div>
 </template>
 
