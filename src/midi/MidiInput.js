@@ -11,6 +11,9 @@ class MidiInput {
     this.midiConnection.sendOutput(event);
   }
   attachConnection(midiConnection) {
+    if (this.midiConnection) {
+      this.midiConnection.notifyDisconnectInput();
+    }
     this.midiConnection = midiConnection;
     this.sysMidiInput.onmidimessage = this.inputHandler.bind(this);
   }

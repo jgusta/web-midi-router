@@ -9,9 +9,7 @@
 <script>
 import StatusConsole from "./components/StatusConsole.vue";
 import ConnectionList from "./components/ConnectionList.vue";
-import MidiConnection from "./midi/MidiConnection.js";
-import MidiInput from "./midi/MidiInput.js";
-import MidiOutput from "./midi/MidiOutput.js";
+import { MidiConnection, MidiInput, MidiOutput } from "./midi";
 import { mapGetters } from "vuex";
 export default {
   name: "app",
@@ -78,22 +76,13 @@ export default {
         }
         resolve();
       });
-    },
-    connectDevices(midiInput, midiOutput) {
-      let midiConnection = new MidiConnection();
-      midiConnection.plugInput(midiInput);
-      midiConnection.plugOutput(midiOutput);
-      this.$store.commit("addMidiConnection", { midiConnection });
     }
   },
   created() {
     // let vm = this;
     this.requestAccess()
       .then(this.enumerateMidiInputs)
-      .then(this.enumerateMidiOutputs)
-      .then(function() {
-        // vm.connectDevices(vm.midiInputs[1], vm.midiOutputs[0]);
-      });
+      .then(this.enumerateMidiOutputs);
   }
 };
 </script>
@@ -106,5 +95,11 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.conn-wrapper {
+  max-width: 500px;
+}
+.conn {
+
 }
 </style>

@@ -30,7 +30,16 @@ const getters = {
   midiAccess: state => state.midiAccess,
   midiInputs: state => state.midiInputs,
   midiOutputs: state => state.midiOutputs,
-  midiConnections: state => state.midiConnections
+  midiConnections: state => state.midiConnections,
+  getMidiInputById: state => id => {
+    return state.midiInputs.find(input => input.value === id);
+  },
+  getMidiOutputById: state => id => {
+    return state.midiOutput.find(output => output.value === id);
+  },
+  getMidiConnectionById: state => id => {
+    return state.midiConnections.find(conn => conn.key === id);
+  }
 };
 
 export default {

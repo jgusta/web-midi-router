@@ -1,37 +1,33 @@
 <template>
-  <div id="connection-list">
+  <div id="connection-list" class="conn-wrapper">
     <h3>Connections</h3>
     <button @click="addBlankConnection">Add connection</button>
-    <Connection
-      v-for="(cb, idx) in connectionBoxes"
-      v-bind:key="idx"
-      v-bind:cb="cb"
-    ></Connection>
+    <ConnectionBus
+      class="conn"
+      v-for="(bIdx) in busList"
+      v-bind:key="bIdx"
+      v-bind:cb="bIdx"
+    ></ConnectionBus>
   </div>
 </template>
 
 <script>
-import Connection from "./Connection.vue";
+import ConnectionBus from "./ConnectionBus.vue";
 export default {
   data() {
     return {
-      connectionBoxes: []
+      busList: [],
+      busIndex: 0
     };
   },
   methods: {
     // add a blank connection with blank selected
     addBlankConnection: function() {
-      //Build the COnnection item, destoy th blank connection
-      this.connectionBoxes.push({
-        input: "",
-        output: ""
-      });
-    },
-    // tkae two connectionBoxes and return solid connection
-    attachConnection: function() {}
+      this.busList.push(this.busIndex++);
+    }
   },
   components: {
-    Connection
+    ConnectionBus
   }
 };
 </script>

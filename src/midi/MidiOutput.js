@@ -7,7 +7,7 @@ class MidiOutput {
     this.name = this.sysMidiOutput.name;
   }
   sendEvent(data, timestamp) {
-    console.log(data, timestamp);
+    console.log(data, timestamp, this.value);
     // this.sysMidiOutput.send(data, timestamp);
   }
 
