@@ -12,6 +12,12 @@
 </template>
 
 <script>
+
+
+// I think that the connection itself should handle partial connection states,
+// not this component. This component should just reflect the connection's state
+
+
 import vSelect from "vue-select";
 import { mapGetters } from "vuex";
 import { MidiConnection } from "../midi";
