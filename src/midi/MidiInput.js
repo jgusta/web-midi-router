@@ -1,7 +1,7 @@
 class MidiInput {
   // note we dont even store the reference to the sysMidiInput
-  constructor(sysMidiInput, Dispatcher) {
-    this.Dispatcher = Dispatcher;
+  constructor(sysMidiInput, dispatcher) {
+    this.dispatcher = dispatcher;
     this.isAttached = false;
     // sysMidiInput doesnt have to be an actual input, it can be an object of values
     this.label = sysMidiInput.name;
@@ -22,22 +22,23 @@ class MidiInput {
           this.manufacturer = sysMidiInput.manufacturer;
           this.name = sysMidiInput.name;
           this._sysMidiInput = sysMidiInput;
-          sysMidiInput.onmidimessage = this.Dispatcher.midiMessageHandler;
+          sysMidiInput.onmidimessage = this.dispatcher.midiMessageHandler;
           this.isAttached = true;
           resolve(this.value);
         })
-        .fail(function(what) {
+        .fail(what => {
+          this.isAttached = false;
           reject(what);
         });
     });
   }
 
   isAttached() {
-    return this.isAttached
-      ? this._sysMidiInput.connected === "connected"
-        ? true
-        : false
-      : false;
+    return (
+      this.isAttached &&
+      this._sysMidiInput.state === "connected" &&
+      this._sysMidiInput.connection === "closed"
+    );
   }
 
   /*
@@ -53,3 +54,5 @@ class MidiInput {
     */
 }
 export default MidiInput;
+
+

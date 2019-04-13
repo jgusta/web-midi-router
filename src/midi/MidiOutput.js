@@ -1,14 +1,49 @@
 class MidiOutput {
-  constructor(sysMidiOutput) {
-    this.sysMidiOutput = sysMidiOutput;
-    this.label = this.sysMidiOutput.name;
-    this.value = this.sysMidiOutput.id;
-    this.manufacturer = this.sysMidiOutput.manufacturer;
-    this.name = this.sysMidiOutput.name;
+  constructor(sysMidiOutput, dispatcher) {
+    this.dispatcher = dispatcher;
+    this.isAttached = false;
+    // sysMidiInput doesnt have to be an actual output, it can be an object of values
+
+    this.label = sysMidiOutput.name;
+    this.value = sysMidiOutput.id;
+    this.portId = sysMidiOutput.id;
+    this.manufacturer = sysMidiOutput.manufacturer;
+    this.name = sysMidiOutput.name;
+
+    /***** */
   }
   receiveEvent(event) {
-    this.sysMidiOutput.send(event.data, event.timeStamp || event.timestamp);
+    this._sysMidiOutput.send(event.data, event.timeStamp || event.timestamp);
     console.log(event.data, event.timestamp, this.value);
+  }
+
+  attachOutput(sysMidiOutput) {
+    return new Promise((resolve, reject) => {
+      sysMidiOutput
+        .open()
+        .then(() => {
+          this.label = sysMidiOutput.name;
+          this.value = sysMidiOutput.id;
+          this.portId = sysMidiOutput.id;
+          this.manufacturer = sysMidiOutput.manufacturer;
+          this.name = sysMidiOutput.name;
+          this._sysMidiOutput = sysMidiOutput;
+          this.isAttached = true;
+          resolve(this.value);
+        })
+        .fail(what => {
+          this.isAttached = false;
+          reject(what);
+        });
+    });
+  }
+
+  isAttached() {
+    return (
+      this.isAttached &&
+      this._sysMidiOutput.state === "connected" &&
+      this._sysMidiOutput.connection === "closed"
+    );
   }
 
   /*

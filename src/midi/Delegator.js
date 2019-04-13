@@ -1,5 +1,6 @@
 import Dispatcher from "./Dispatcher";
 import MidiInput from "./MidiInput";
+import MidiOutput from "./MidiOutput";
 
 // these are the abstractions
 var _highInputs = [];
@@ -48,8 +49,8 @@ function _initMidi() {
 }
 
 // does this sysMidiInput match this abstraction, basically?
-function isMatch(lowInput, highInput) {
-  if (lowInput.id === highInput.portId && highInput.label === lowInput.name) {
+function isMatch(low, high) {
+  if (low.id === high.portId && high.label === low.name) {
     return true;
   }
   return false;
@@ -68,7 +69,7 @@ var _instance;
 // }
 
 class Delegator {
-  constructor(callback, recalledInputs, recalledOutputs) {
+  constructor(callback, recalledInputs, recalledOutputs, dispatcher) {
     callback =
       callback ||
       function() {
@@ -81,24 +82,55 @@ class Delegator {
     this.readyPromise = new Promise(
       resolve => (_allReadyResolve = resolve)
     ).then(callback);
-    this.dispatcher = new Dispatcher();
-    _initMidi().then(midi => {
-      // loop through low inputs
-      // if there is a high input whose value matches the low
-      if (midi) {
-        this.midiAccess = midi;
-        this.updateInputs(midi, this._highInputs)
-          .then(() => this.updateOutputs(midi, this._highOutputs))
-          .then(_allReadyResolve);
-      }
-    });
+    this.dispatcher = dispatcher || new Dispatcher();
+    _initMidi()
+      .then(midi => {
+        // loop through low inputs
+        // if there is a high input whose value matches the low
+        if (midi) {
+          this.midiAccess = midi;
+          return this.updateInputs(
+            this.midiAccess,
+            this._highInputs,
+            this.dispatcher
+          ).then(() =>
+            this.updateOutputs(
+              this.midiAccess,
+              this._highOutputs,
+              this.dispatcher
+            )
+          );
+        }
+      })
+      .then(async midi => {
+        // loop through low inputs
+        // if there is a high input whose value matches the low
+        if (midi) {
+          this.midiAccess = midi;
+          await this.updateInputs(
+            this.midiAccess,
+            this._highInputs,
+            this.dispatcher
+          );
+          return this.updateOutputs(
+            this.midiAccess,
+            this._highOutputs,
+            this.dispatcher
+          );
+        }
+      })
+      .then(_allReadyResolve);
   }
 
   retrieveMidiAccess() {
     return this.midiAccess || false;
   }
 
-  updateInputs(midi, _highInputs) {
+  retrieveDispatcher() {
+    return this.dispatcher || false;
+  }
+
+  updateInputs(midi, _highInputs, dispatcher) {
     let lowInputs = midi.inputs.values();
     let promises = [];
     for (let lowInput of lowInputs) {
@@ -115,7 +147,7 @@ class Delegator {
         // matching abstraction doesnt exist so create a new one
         promises.push(
           new Promise(res => {
-            let newHighInput = new MidiInput(lowInput, this.dispatcher);
+            let newHighInput = new MidiInput(lowInput, dispatcher);
             _highInputs.push(newHighInput);
             newHighInput.attachInput(lowInput).then(res);
           })
@@ -125,8 +157,28 @@ class Delegator {
     return Promise.all(promises);
   }
 
-  updateOutputs(midi) {
-
+  updateOutputs(midi, _highOutputs, dispatcher) {
+        let lowOutputs = midi.outputs.values();
+        let promises = [];
+        for (let lowOutput of lowOutputs) {
+          let add = true;
+          for (let highOutput of _highOutputs) {
+            if (isMatch(lowOutput, highOutput)) {
+              promises.push(highOutput.attachOutput(lowOutput));
+              add =false;
+              break;
+            }
+          }
+          if (add) {
+            promises.push(new Promise((res)=>{
+              let newHighOutput = new MidiOutput(lowOutput, dispatcher);
+              _highOutputs.push(newHighOutput);
+                newHighOutput.attachOutput(lowOutput).then(res);
+              
+              
+            }));
+          }
+        }
   }
 
   onReady(callback) {
