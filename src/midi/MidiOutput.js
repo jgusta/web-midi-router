@@ -2,15 +2,12 @@ class MidiOutput {
   constructor(sysMidiOutput, dispatcher) {
     this.dispatcher = dispatcher;
     this.isAttached = false;
-    // sysMidiInput doesnt have to be an actual output, it can be an object of values
-
+    // sysMidiOutput doesnt have to be an actual output, it can be an object of values
     this.label = sysMidiOutput.name;
     this.value = sysMidiOutput.id;
     this.portId = sysMidiOutput.id;
     this.manufacturer = sysMidiOutput.manufacturer;
     this.name = sysMidiOutput.name;
-
-    /***** */
   }
   receiveEvent(event) {
     this._sysMidiOutput.send(event.data, event.timeStamp || event.timestamp);

@@ -2,13 +2,6 @@ import Dispatcher from "./Dispatcher";
 import MidiInput from "./MidiInput";
 import MidiOutput from "./MidiOutput";
 
-// these are the abstractions
-var _highInputs = [];
-var _highOutputs = [];
-
-var inputs = [];
-var outputs = [];
-
 var midiAccess;
 // all this does is assing midiAccess then open inputs and return a promise, does not seem to store inputs
 // i think this is some initialization step thing
@@ -24,7 +17,7 @@ function _initMidi() {
     function(midi) {
       midiAccess = midi;
       var promises = [];
-      inputs = midiAccess.inputs.values();
+      let inputs = midiAccess.inputs.values();
       for (
         var input = inputs.next();
         input && !input.done;
@@ -32,7 +25,7 @@ function _initMidi() {
       ) {
         promises.push(input.value.open());
       }
-      outputs = midiAccess.outputs.values();
+      let outputs = midiAccess.outputs.values();
       for (
         var output = outputs.next();
         output && !output.done;
@@ -56,18 +49,6 @@ function isMatch(low, high) {
   return false;
 }
 
-var _instance;
-
-// function getInstance(callback) {
-//   if (_instance) {
-//     _instance.readyPromise.then(callback);
-//     return _instance;
-//   } else {
-//     _instance = new Delegator(callback);
-//     return _instance;
-//   }
-// }
-
 class Delegator {
   constructor(callback, recalledInputs, recalledOutputs, dispatcher) {
     callback =
@@ -84,42 +65,18 @@ class Delegator {
     ).then(callback);
     this.dispatcher = dispatcher || new Dispatcher();
     _initMidi()
-      .then(midi => {
-        // loop through low inputs
-        // if there is a high input whose value matches the low
-        if (midi) {
-          this.midiAccess = midi;
-          return this.updateInputs(
-            this.midiAccess,
-            this._highInputs,
-            this.dispatcher
-          ).then(() =>
-            this.updateOutputs(
-              this.midiAccess,
-              this._highOutputs,
-              this.dispatcher
-            )
-          );
-        }
-      })
-      .then(async midi => {
-        // loop through low inputs
-        // if there is a high input whose value matches the low
-        if (midi) {
-          this.midiAccess = midi;
-          await this.updateInputs(
-            this.midiAccess,
-            this._highInputs,
-            this.dispatcher
-          );
-          return this.updateOutputs(
-            this.midiAccess,
-            this._highOutputs,
-            this.dispatcher
-          );
-        }
-      })
+      .then(midi => (this.midiAccess = midi))
+      .then(this.updateAllPorts)
       .then(_allReadyResolve);
+  }
+
+  async updateAllPorts() {
+    await this.updateInputs(this.midiAccess, this._highInputs, this.dispatcher);
+    await this.updateOutputs(
+      this.midiAccess,
+      this._highOutputs,
+      this.dispatcher
+    );
   }
 
   retrieveMidiAccess() {
@@ -128,6 +85,14 @@ class Delegator {
 
   retrieveDispatcher() {
     return this.dispatcher || false;
+  }
+
+  retrieveInputs() {
+    return this._highInputs || [];
+  }
+
+  retrieveOutputs() {
+    return this._highOutputs || [];
   }
 
   updateInputs(midi, _highInputs, dispatcher) {
@@ -158,27 +123,28 @@ class Delegator {
   }
 
   updateOutputs(midi, _highOutputs, dispatcher) {
-        let lowOutputs = midi.outputs.values();
-        let promises = [];
-        for (let lowOutput of lowOutputs) {
-          let add = true;
-          for (let highOutput of _highOutputs) {
-            if (isMatch(lowOutput, highOutput)) {
-              promises.push(highOutput.attachOutput(lowOutput));
-              add =false;
-              break;
-            }
-          }
-          if (add) {
-            promises.push(new Promise((res)=>{
-              let newHighOutput = new MidiOutput(lowOutput, dispatcher);
-              _highOutputs.push(newHighOutput);
-                newHighOutput.attachOutput(lowOutput).then(res);
-              
-              
-            }));
-          }
+    let lowOutputs = midi.outputs.values();
+    let promises = [];
+    for (let lowOutput of lowOutputs) {
+      let add = true;
+      for (let highOutput of _highOutputs) {
+        if (isMatch(lowOutput, highOutput)) {
+          promises.push(highOutput.attachOutput(lowOutput));
+          add = false;
+          break;
         }
+      }
+      if (add) {
+        promises.push(
+          new Promise(res => {
+            let newHighOutput = new MidiOutput(lowOutput, dispatcher);
+            _highOutputs.push(newHighOutput);
+            newHighOutput.attachOutput(lowOutput).then(res);
+          })
+        );
+      }
+    }
+    return Promise.all(promises);
   }
 
   onReady(callback) {
@@ -193,7 +159,7 @@ class Delegator {
 //  // do something
 //});
 export default {
-  DawlessUsb: Delegator
+  WebMidiRouter: Delegator
 };
 // var outside = 'hey';
 // var ass = new Promise((good,bad) =>  {

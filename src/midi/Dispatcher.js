@@ -1,26 +1,32 @@
 class Dispatcher {
-  constructor() {
+  constructor(logger) {
+    this.logger =
+      logger ||
+      function(msg) {
+        console.log(msg);
+      };
     this.routes = [];
   }
 
   midiMessageHandler(event) {
     if (
       this.routes[event.target.id] &&
-      typeof this.routes[event.target.id] === "function"
+      typeof this.routes[event.target.id] === "object"
     ) {
-      this.routes[event.target.id](event);
+      this.routes[event.target.id].receiveMidiEvent(event);
+    } else {
+      this.logger("MIDI Message Sent No Where!", event);
     }
   }
 
-  addMapping(name, callback) {
-    if (typeof callback !== "function") {
-      console.error("callback parameter not a function", callback);
-    }
-    this.routes[name] = callback;
+  addMapping(mapId, receivable) {
+    // incoming is a string
+    // outgoing is an object with a method .recieveMidiEvent(event)
+    this.routes[mapId] = receivable;
   }
 
-  removeMapping(name) {
-    this.routes[name] = undefined;
+  removeMapping(identifier) {
+    this.routes[identifier] = undefined;
   }
 }
 
