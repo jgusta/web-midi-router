@@ -9,10 +9,7 @@ class Dispatcher {
   }
 
   midiMessageHandler(event) {
-    if (
-      this.routes[event.target.id] &&
-      typeof this.routes[event.target.id] === "object"
-    ) {
+    if (this.hasMapping(event.target.id)) {
       this.routes[event.target.id].receiveMidiEvent(event);
     } else {
       this.logger("MIDI Message Sent No Where!", event);
@@ -25,8 +22,14 @@ class Dispatcher {
     this.routes[mapId] = receivable;
   }
 
+  hasMapping(identifier) {
+    return this.routes[identifier] ? true : false;
+  }
+
   removeMapping(identifier) {
-    this.routes[identifier] = undefined;
+    if (this.hasMapping(identifier)) {
+      delete this.routes[identifier];
+    }
   }
 }
 

@@ -66,16 +66,18 @@ class Delegator {
     this.dispatcher = dispatcher || new Dispatcher();
     _initMidi()
       .then(midi => (this.midiAccess = midi))
-      .then(this.updateAllPorts)
+      .then(() => this.updateAllPorts())
       .then(_allReadyResolve);
   }
 
-  async updateAllPorts() {
-    await this.updateInputs(this.midiAccess, this._highInputs, this.dispatcher);
-    await this.updateOutputs(
+  updateAllPorts() {
+    console.log(this);
+    return this.updateInputs(
       this.midiAccess,
-      this._highOutputs,
+      this._highInputs,
       this.dispatcher
+    ).then(() =>
+      this.updateOutputs(this.midiAccess, this._highOutputs, this.dispatcher)
     );
   }
 
@@ -158,16 +160,4 @@ class Delegator {
 // midi.onReady(function() {
 //  // do something
 //});
-export default {
-  WebMidiRouter: Delegator
-};
-// var outside = 'hey';
-// var ass = new Promise((good,bad) =>  {
-//   good(outside);
-// });
-
-// ass.then((stuff)=>console.log(stuff))
-// var _allReadyResolve;
-// readyPromise = new Promise((resolve) => _allReadyResolve = resolve);
-// readyPromise.then(function(hey) {console.log('boom')});
-// _allReadyResolve();
+export default Delegator;
