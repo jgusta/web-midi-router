@@ -5,16 +5,16 @@
       <div id="connection-list" class="conn-wrapper">
         <h3>Connections</h3>
         <button @click="addBlankBus">Add connection</button>
-        <div class="conn" v-for="(bIdx) in busList" v-bind:key="bIdx">
-          <div>
-            <h5>Input</h5>
-            <vSelect @change="changedInputValue" :options="availableInputs"></vSelect>
-          </div>
-          <div>
-            <h5>Output</h5>
-            <vSelect @change="changedOutputValue" :options="availableOutputs"></vSelect>
-          </div>
-        </div>
+        <ConnectionBus
+          class="conn"
+          v-for="(item, index) in busList"
+          v-bind:key="index"
+          v-bind:cb_index="index"
+          v-bind:midiInputs="availableInputs"
+          v-bind:midiOutputs="availableOutputs"
+          @input-change="handleInputChange"
+          @output-change="handleOutputChange"
+        ></ConnectionBus>
       </div>
     </template>
   </div>
@@ -22,6 +22,7 @@
 
 <script>
 import { Delegator } from "./midi";
+import ConnectionBus from "./components/ConnectionBus.vue";
 import vSelect from "vue-select";
 export default {
   name: "app",
@@ -34,6 +35,9 @@ export default {
     };
   },
   computed: {
+    dispatch() {
+      return this.WebMidiRouter.retrieveDispatcher();
+    },
     availableInputs() {
       let result = [];
       let dispatcher = this.WebMidiRouter.retrieveDispatcher();
@@ -49,7 +53,7 @@ export default {
       let dispatcher = this.WebMidiRouter.retrieveDispatcher();
       for (let input of this.WebMidiRouter.retrieveOutputs()) {
         // if (!dispatcher.hasMapping(input)) {
-          result.push(input);
+        result.push(input);
         // }
       }
       return result;
@@ -57,17 +61,38 @@ export default {
   },
   methods: {
     addBlankBus: function() {
-      this.busList.push(this.busIndex++);
+      this.busList.push({
+        input: false,
+        output: false
+      });
     },
-    changedInputValue: function() {},
-    changedOutputValue: function(){}
+    handleInputChange: function(value, index) {
+      this.busList[index].input = value;
+      this.doConnection(index);
+    },
+    handleOutputChange: function(value, index) {
+      this.busList[index].output = value;
+      this.doConnection(index);
+    },
+    doConnection(index) {
+      let dispatcher = this.WebMidiRouter.retrieveDispatcher();
+      if (this.busList[index].output && this.busList[index].input) {
+        let input = this.busList[index].input;
+        let output = this.busList[index].output;
+        dispatcher.addMapping(input.id, output);
+        console.log(input.name + ' connected to ' + output.name);
+      }
+    }
   },
   created() {
     this.WebMidiRouter = new Delegator();
-    this.WebMidiRouter.onReady(() => {this.loaded = true});
+    this.WebMidiRouter.onReady(() => {
+      this.loaded = true;
+    });
   },
   components: {
-    vSelect
+    vSelect,
+    ConnectionBus
   }
 };
 </script>

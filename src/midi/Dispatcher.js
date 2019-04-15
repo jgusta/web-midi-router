@@ -8,13 +8,14 @@ class Dispatcher {
     this.routes = [];
   }
 
-  midiMessageHandler(event) {
+  // make sure its arrow func
+  midiMessageHandler = event => {
     if (this.hasMapping(event.target.id)) {
       this.routes[event.target.id].receiveMidiEvent(event);
     } else {
       this.logger("MIDI Message Sent No Where!", event);
     }
-  }
+  };
 
   addMapping(mapId, receivable) {
     // incoming is a string

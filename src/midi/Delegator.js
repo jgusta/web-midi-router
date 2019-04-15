@@ -3,8 +3,7 @@ import MidiInput from "./MidiInput";
 import MidiOutput from "./MidiOutput";
 
 var midiAccess;
-// all this does is assing midiAccess then open inputs and return a promise, does not seem to store inputs
-// i think this is some initialization step thing
+// initialize MIDIAccess, then open all the ports before resolving
 function _initMidi() {
   if (!navigator.requestMIDIAccess) {
     return Promise(function(resolve, fail) {
@@ -41,7 +40,7 @@ function _initMidi() {
   );
 }
 
-// does this sysMidiInput match this abstraction, basically?
+// does this MIDIPort match this abstraction, basically?
 function isMatch(low, high) {
   if (low.id === high.portId && high.label === low.name) {
     return true;
@@ -154,10 +153,4 @@ class Delegator {
   }
 }
 
-// to use
-// import Delegator from './Delegator';
-// var midi = Delegator.getInstance();
-// midi.onReady(function() {
-//  // do something
-//});
 export default Delegator;
