@@ -28,7 +28,7 @@ class MidiOutput {
           this.isAttached = true;
           resolve(this.value);
         })
-        .fail(what => {
+        .catch(what => {
           this.isAttached = false;
           reject(what);
         });
