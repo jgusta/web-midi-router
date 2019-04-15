@@ -54,5 +54,3 @@ class MidiInput {
     */
 }
 export default MidiInput;
-
-
