@@ -1,2 +1,6 @@
 // vue.config.js
-module.exports = {};
+module.exports = {
+  outputDir: "docs",
+  assetsDir: "assets",
+  productionSourceMap: false
+};

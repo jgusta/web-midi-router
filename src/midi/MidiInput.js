@@ -1,25 +1,46 @@
 class MidiInput {
-  constructor(sysMidiInput) {
-    this.sysMidiInput = sysMidiInput;
-    this.label = this.sysMidiInput.name;
-    this.value = this.sysMidiInput.id;
-    this.manufacturer = this.sysMidiInput.manufacturer;
-    this.name = this.sysMidiInput.name;
+  // note we dont even store the reference to the sysMidiInput
+  constructor(sysMidiInput, dispatcher) {
+    this.dispatcher = dispatcher;
+    this.isAttached = false;
+    // sysMidiInput doesnt have to be an actual input, it can be an object of values
+    this.label = sysMidiInput.name;
+    this.value = sysMidiInput.id;
+    this.portId = sysMidiInput.id;
+    this.manufacturer = sysMidiInput.manufacturer;
+    this.name = sysMidiInput.name;
   }
-  inputHandler(event) {
-    console.log(event);
-    this.midiConnection.sendOutput(event);
+
+  attachInput(sysMidiInput) {
+    return new Promise((resolve, reject) => {
+      sysMidiInput
+        .open()
+        .then(() => {
+          this.label = sysMidiInput.name;
+          this.value = sysMidiInput.id;
+          this.portId = sysMidiInput.id;
+          this.manufacturer = sysMidiInput.manufacturer;
+          this.name = sysMidiInput.name;
+          this._sysMidiInput = sysMidiInput;
+          sysMidiInput.onmidimessage = this.dispatcher.midiMessageHandler;
+          this.isAttached = true;
+          resolve(this.value);
+        })
+        .catch(what => {
+          this.isAttached = false;
+          reject(what);
+        });
+    });
   }
-  attachConnection(midiConnection) {
-    if (this.midiConnection) {
-      this.midiConnection.notifyDisconnectInput();
-    }
-    this.midiConnection = midiConnection;
-    this.sysMidiInput.onmidimessage = this.inputHandler.bind(this);
+
+  isAttached() {
+    return (
+      this.isAttached &&
+      this._sysMidiInput.state === "connected" &&
+      this._sysMidiInput.connection === "closed"
+    );
   }
-  spitInput() {
-    return this.sysMidiInput;
-  }
+
   /*
     connection: "closed"
     id: "input-0"

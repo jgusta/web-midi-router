@@ -1,88 +1,98 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <StatusConsole />
-    <ConnectionList />
+    <img alt="Vue logo" src="./assets/logo.png">
+    <template v-if="loaded">
+      <div id="connection-list" class="conn-wrapper">
+        <h3>Connections</h3>
+        <button @click="addBlankBus">Add connection</button>
+        <ConnectionBus
+          class="conn"
+          v-for="(item, index) in busList"
+          v-bind:key="index"
+          v-bind:cb_index="index"
+          v-bind:midiInputs="availableInputs"
+          v-bind:midiOutputs="availableOutputs"
+          @input-change="handleInputChange"
+          @output-change="handleOutputChange"
+        ></ConnectionBus>
+      </div>
+    </template>
   </div>
 </template>
 
 <script>
-import StatusConsole from "./components/StatusConsole.vue";
-import ConnectionList from "./components/ConnectionList.vue";
-import { MidiConnection, MidiInput, MidiOutput } from "./midi";
-import { mapGetters } from "vuex";
+import { Delegator } from "./midi";
+import ConnectionBus from "./components/ConnectionBus.vue";
+import vSelect from "vue-select";
 export default {
   name: "app",
-  components: {
-    StatusConsole,
-    ConnectionList
+  data() {
+    return {
+      loaded: false,
+      busList: [],
+      busIndex: 0,
+      WebMidiRouter: ""
+    };
   },
   computed: {
-    ...mapGetters([
-      "midiAccess",
-      "midiInputs",
-      "midiOutputs",
-      "midiConnections"
-    ])
+    dispatch() {
+      return this.WebMidiRouter.retrieveDispatcher();
+    },
+    availableInputs() {
+      let result = [];
+      let dispatcher = this.WebMidiRouter.retrieveDispatcher();
+      for (let input of this.WebMidiRouter.retrieveInputs()) {
+        if (!dispatcher.hasMapping(input)) {
+          result.push(input);
+        }
+      }
+      return result;
+    },
+    availableOutputs() {
+      let result = [];
+      let dispatcher = this.WebMidiRouter.retrieveDispatcher();
+      for (let input of this.WebMidiRouter.retrieveOutputs()) {
+        // if (!dispatcher.hasMapping(input)) {
+        result.push(input);
+        // }
+      }
+      return result;
+    }
   },
   methods: {
-    requestAccess() {
-      let vm = this;
-      if (!navigator.requestMIDIAccess) {
-        // eslint-disable-next-line
-        return new Promise(function(resolve, fail) {
-          vm.$store.commit("log", {
-            msg:
-              "Your browser doesn't have navigator.requestMIDIAccess. Please try Google Chrome."
-          });
-          fail();
-        });
+    addBlankBus: function() {
+      this.busList.push({
+        input: false,
+        output: false
+      });
+    },
+    handleInputChange: function(value, index) {
+      this.busList[index].input = value;
+      this.doConnection(index);
+    },
+    handleOutputChange: function(value, index) {
+      this.busList[index].output = value;
+      this.doConnection(index);
+    },
+    doConnection(index) {
+      let dispatcher = this.WebMidiRouter.retrieveDispatcher();
+      if (this.busList[index].output && this.busList[index].input) {
+        let input = this.busList[index].input;
+        let output = this.busList[index].output;
+        dispatcher.addMapping(input.id, output);
+        console.log(input.name + ' connected to ' + output.name);
       }
-      return navigator.requestMIDIAccess().then(
-        function(midi) {
-          console.log("MIDI Initialized.");
-          vm.$store.commit("log", {
-            msg: "MIDI Initialized."
-          });
-          vm.$store.commit("midiAccess", { midi });
-        },
-        function(msg) {
-          console.log("Failed to get MIDI." + msg);
-        }
-      );
-    },
-    enumerateMidiInputs() {
-      let vm = this;
-      return new Promise(function(resolve) {
-        vm.$store.commit("clearMidiInputs");
-        for (var entry of vm.midiAccess.inputs) {
-          var input = entry[1];
-          let midiInput = new MidiInput(input);
-          vm.$store.commit("addMidiInput", { midiInput });
-        }
-        resolve();
-      });
-    },
-    enumerateMidiOutputs() {
-      let vm = this;
-      return new Promise(function(resolve) {
-        // note that there is some weird bug using the values() method
-        // with outputs that causes the browser to crash
-        vm.$store.commit("clearMidiOutputs");
-        for (var entry of vm.midiAccess.outputs) {
-          var output = entry[1];
-          let midiOutput = new MidiOutput(output);
-          vm.$store.commit("addMidiOutput", { midiOutput });
-        }
-        resolve();
-      });
     }
   },
   created() {
-    // let vm = this;
-    this.requestAccess()
-      .then(this.enumerateMidiInputs)
-      .then(this.enumerateMidiOutputs);
+    this.WebMidiRouter = new Delegator();
+    this.WebMidiRouter.onReady(() => {
+      this.loaded = true;
+    });
+  },
+  components: {
+    vSelect,
+    ConnectionBus
   }
 };
 </script>
@@ -100,6 +110,5 @@ export default {
   max-width: 500px;
 }
 .conn {
-
 }
 </style>
