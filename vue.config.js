@@ -3,5 +3,5 @@ module.exports = {
   outputDir: "docs",
   assetsDir: "assets",
   productionSourceMap: false,
-  publicPath: "/web-midi-router/"
+  publicPath: process.env.NODE_ENV === "production" ? "/web-midi-router/" : "/"
 };
