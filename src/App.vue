@@ -10,8 +10,8 @@
           v-for="(item, index) in busList"
           v-bind:key="index"
           v-bind:cb_index="index"
-          v-bind:midiInputs="availableInputs"
-          v-bind:midiOutputs="availableOutputs"
+          v-bind:midiInputs="availableInputs()"
+          v-bind:midiOutputs="availableOutputs()"
           @input-change="handleInputChange"
           @output-change="handleOutputChange"
         ></ConnectionBus>
@@ -23,7 +23,6 @@
 <script>
 import { Delegator } from "./midi";
 import ConnectionBus from "./components/ConnectionBus.vue";
-import vSelect from "vue-select";
 export default {
   name: "app",
   data() {
@@ -35,14 +34,40 @@ export default {
     };
   },
   computed: {
-    dispatch() {
+    dispatcher() {
       return this.WebMidiRouter.retrieveDispatcher();
+    }
+  },
+  methods: {
+    addBlankBus() {
+      this.busList.push({
+        input: false,
+        output: false
+      });
+    },
+    handleInputChange(value, index) {
+      this.busList[index].input = value;
+      this.doConnection(index);
+    },
+    handleOutputChange(value, index) {
+      this.busList[index].output = value;
+      this.doConnection(index);
+    },
+    doConnection(index) {
+      let dispatcher = this.dispatcher;
+      if (this.busList[index].output && this.busList[index].input) {
+        let input = this.busList[index].input;
+        let output = this.busList[index].output;
+        dispatcher.addMapping(input.portId, output);
+        console.log(input.name + " connected to " + output.name);
+      }
     },
     availableInputs() {
       let result = [];
-      let dispatcher = this.WebMidiRouter.retrieveDispatcher();
+      let dispatcher = this.dispatcher;
       for (let input of this.WebMidiRouter.retrieveInputs()) {
-        if (!dispatcher.hasMapping(input)) {
+        if (!dispatcher.hasMapping(input.portId)) {
+          console.log(`dispatcher does NOT have mapping for ${input.portId}`);
           result.push(input);
         }
       }
@@ -50,38 +75,13 @@ export default {
     },
     availableOutputs() {
       let result = [];
-      let dispatcher = this.WebMidiRouter.retrieveDispatcher();
-      for (let input of this.WebMidiRouter.retrieveOutputs()) {
-        // if (!dispatcher.hasMapping(input)) {
-        result.push(input);
+      // let dispatcher = this.dispatcher;
+      for (let output of this.WebMidiRouter.retrieveOutputs()) {
+        // if (!dispatcher.hasMapping(output)) {
+        result.push(output);
         // }
       }
       return result;
-    }
-  },
-  methods: {
-    addBlankBus: function() {
-      this.busList.push({
-        input: false,
-        output: false
-      });
-    },
-    handleInputChange: function(value, index) {
-      this.busList[index].input = value;
-      this.doConnection(index);
-    },
-    handleOutputChange: function(value, index) {
-      this.busList[index].output = value;
-      this.doConnection(index);
-    },
-    doConnection(index) {
-      let dispatcher = this.WebMidiRouter.retrieveDispatcher();
-      if (this.busList[index].output && this.busList[index].input) {
-        let input = this.busList[index].input;
-        let output = this.busList[index].output;
-        dispatcher.addMapping(input.id, output);
-        console.log(input.name + ' connected to ' + output.name);
-      }
     }
   },
   created() {
@@ -91,7 +91,6 @@ export default {
     });
   },
   components: {
-    vSelect,
     ConnectionBus
   }
 };

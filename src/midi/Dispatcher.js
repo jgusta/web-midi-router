@@ -24,6 +24,7 @@ class Dispatcher {
   }
 
   hasMapping(identifier) {
+    console.log("has mapping check: " + identifier, this.routes);
     return this.routes[identifier] ? true : false;
   }
 

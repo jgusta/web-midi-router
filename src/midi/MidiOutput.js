@@ -9,7 +9,7 @@ class MidiOutput {
     this.manufacturer = sysMidiOutput.manufacturer;
     this.name = sysMidiOutput.name;
   }
-  receiveEvent(event) {
+  receiveMidiEvent(event) {
     this._sysMidiOutput.send(event.data, event.timeStamp || event.timestamp);
     console.log(event.data, event.timestamp, this.value);
   }

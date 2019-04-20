@@ -2,11 +2,15 @@
   <div>
     <div>
       <h5>Input</h5>
-      <vSelect @change="$emit('input-change', $event, cb_index)" :options="midiInputs"></vSelect>
+      <vSelect 
+        @change="$emit('input-change', $event, cb_index)" 
+        :options="midiInputs"/>
     </div>
     <div>
       <h5>Output</h5>
-      <vSelect @change="$emit('output-change', $event, cb_index)" :options="midiOutputs"></vSelect>
+      <vSelect 
+        @change="$emit('output-change', $event, cb_index)" 
+        :options="midiOutputs"/>
     </div>
   </div>
 </template>
