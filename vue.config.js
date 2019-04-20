@@ -2,5 +2,6 @@
 module.exports = {
   outputDir: "docs",
   assetsDir: "assets",
-  productionSourceMap: false
+  productionSourceMap: false,
+  publicPath: "/web-midi-router/"
 };
