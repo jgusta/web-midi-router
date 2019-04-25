@@ -66,8 +66,7 @@ export default {
       let result = [];
       let dispatcher = this.dispatcher;
       for (let input of this.WebMidiRouter.retrieveInputs()) {
-        if (!dispatcher.hasMapping(input.portId)) {
-          console.log(`dispatcher does NOT have mapping for ${input.portId}`);
+        if (!dispatcher.hasInputMapping(input.portId)) {
           result.push(input);
         }
       }
@@ -75,11 +74,11 @@ export default {
     },
     availableOutputs() {
       let result = [];
-      // let dispatcher = this.dispatcher;
+      let dispatcher = this.dispatcher;
       for (let output of this.WebMidiRouter.retrieveOutputs()) {
-        // if (!dispatcher.hasMapping(output)) {
-        result.push(output);
-        // }
+        if (!dispatcher.hasOutputMapping(output)) {
+          result.push(output);
+        }
       }
       return result;
     }

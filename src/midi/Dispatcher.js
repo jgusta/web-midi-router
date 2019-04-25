@@ -5,7 +5,7 @@ class Dispatcher {
       function(msg) {
         console.log(msg);
       };
-    this.routes = [];
+    this.routes = {};
   }
 
   // make sure its arrow func
@@ -18,20 +18,36 @@ class Dispatcher {
   };
 
   addMapping(mapId, receivable) {
-    // incoming is a string
-    // outgoing is an object with a method .recieveMidiEvent(event)
     this.routes[mapId] = receivable;
   }
 
-  hasMapping(identifier) {
-    console.log("has mapping check: " + identifier, this.routes);
+  hasInputMapping(identifier) {
     return this.routes[identifier] ? true : false;
   }
 
-  removeMapping(identifier) {
+  hasOutputMapping(identifier) {
+    let portId = identifier.portId;
+    let result = false;
+    Object.keys(this.routes).forEach((val) => {
+      if (this.routes[val].portId === portId) {
+        result = true;
+      }
+    });
+    return result;
+  }
+
+  removeInputMapping(identifier) {
     if (this.hasMapping(identifier)) {
       delete this.routes[identifier];
     }
+  }
+
+  removeOutputMapping(identifier) {
+    Object.keys(this.routes).forEach(val => {
+      if (this.routes[val].portId === identifier.portId) {
+        delete this.routes[val];
+      }
+    });
   }
 }
 
