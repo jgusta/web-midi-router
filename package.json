@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "lodash": "^4.17.14",
+    "lodash.defaultsdeep": "^4.6.1",
     "vue": "^2.6.6",
     "vue-select": "^2.6.0"
   },
